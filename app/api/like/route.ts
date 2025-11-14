@@ -30,7 +30,28 @@ export async function POST(req: NextRequest) {
             data: { likedIds: updatedLikeIds },
         });
 
-        return NextResponse.json({ updatedPost }, { status: 200 });
+        try {
+            const post = await prisma.post.findUnique({
+                where: { id: postId },
+            })
+            if (post?.userId) {
+                await prisma.notification.create({
+                    data: {
+                        body: "Someone liked your post!",
+                        userId: post.userId
+                    }
+                });
+
+                await prisma.user.update({
+                    where: { id: post.userId },
+                    data: { hasNotifications: true }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+        return NextResponse.json(updatedPost, { status: 200 });
     } catch (error) {
         console.log(error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 400 });
@@ -62,7 +83,7 @@ export async function DELETE(req: NextRequest) {
             data: { likedIds: updatedLikeIds },
         });
 
-        return NextResponse.json({ updatedPost }, { status: 200 });
+        return NextResponse.json(updatedPost, { status: 200 });
     } catch (error) {
         console.log(error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 400 });

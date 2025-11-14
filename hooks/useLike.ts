@@ -25,23 +25,31 @@ const useLike = ({ postId, userId }: { postId: string; userId: string }) => {
         }
 
         try {
+            const currentLikedIds = fetchedPost?.likedIds || [];  
+            const currentHasLiked = currentLikedIds.includes(currentUser?.id); 
+
             let request;
 
-            if (hasLiked) {
+            if (currentHasLiked) {
                 request = () => axios.delete(`/api/like`, {data: { postId }});
             } else {
                 request = () => axios.post(`/api/like`, { postId });
             }
 
-            await request();
-            mutateFetchedPost(); 
-            mutateFetchedPosts();
+            const response = await request();
+            
+            // 用后端返回的最新数据覆盖缓存
+            mutateFetchedPost(response.data,true);
+            // 强制重新拉取所有 posts
+            mutateFetchedPosts(undefined, true);
+            
             toast.success("Success");
         } catch (error) {
             console.log(error);
+            toast.error("Something went wrong");
         }
 
-    }, [currentUser, hasLiked, postId, loginModal, mutateFetchedPost, mutateFetchedPosts]);
+    }, [currentUser, fetchedPost, postId, loginModal, mutateFetchedPost, mutateFetchedPosts]);
 
     return {
         hasLiked,

@@ -9,6 +9,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import Button from "./Button";
 import Avatar from "./Avatar";
+import usePost from "@/hooks/usePost";
 
 interface FormProps {
     placeholder: string;
@@ -21,7 +22,9 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
     const loginModal = useLoginModal();
 
     const { data: currentUser } = useCurrentUser();
-    const { mutate: mutatePosts } = usePosts(postId as string);
+    // 只在是评论时才使用 postId
+    const { mutate: mutatePosts } = usePosts(isComment && postId ? postId : "");
+    const { mutate: mutatePost } = usePost(postId as string);
 
     const [body, setBody] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -29,16 +32,23 @@ const Form: React.FC<FormProps> = ({ placeholder, isComment, postId }) => {
     const onSubmit = useCallback(async () => {
         try {
             setIsLoading(true);
-            await axios.post('/api/posts', { body });
+
+            const url = isComment ? `/api/comments?postId=${postId}` : `/api/posts`;
+            const data = isComment ? { postId, body } : { body };
+
+            await axios.post(url, data);
+
             toast.success("Tweet created");
+
             setBody("");
-            mutatePosts(); // Refresh the posts after creating a new one
+            mutatePosts();
+            mutatePost(); 
         } catch (error) {
             toast.error("Something went wrong");
         } finally {
             setIsLoading(false);
         }
-    }, [body, mutatePosts]);
+    }, [body, mutatePosts, mutatePost, isComment, postId]);
 
     return (
         <div className="border-b border-neutral-800 px-5 py-2">

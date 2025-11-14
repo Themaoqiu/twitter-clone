@@ -28,6 +28,22 @@ export async function POST(req: NextRequest) {
             data: { followingIds: updatedFollowingIds },
         });
 
+        try {
+            await prisma.notification.create({
+                data: {
+                    body: "Someone started following you!",
+                    userId: userId
+                }
+            });
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: { hasNotifications: true }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+
         return NextResponse.json({ updatedUser }, { status: 200 });
 
     } catch (error) {

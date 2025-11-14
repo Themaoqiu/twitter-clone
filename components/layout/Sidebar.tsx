@@ -23,12 +23,15 @@ const Sidebar = () => {
         {
             label: 'Notifications',
             href: '/notifications',
-            icon: BsHourglass
+            icon: BsHourglass,
+            auth: true,
+            alert: currentUser?.hasNotifications
         },
         {
             label: 'Profile',
             href: `/users/${currentUser?.id}`,
-            icon: FaUser
+            icon: FaUser,
+            auth: true
         }
     ]
 
@@ -43,7 +46,14 @@ const Sidebar = () => {
                 <div className="space-y-2 lg:w-[230px]">
                     <SidebarLogo />
                     {items.map((item) => (
-                        <SidebarItem key={item.href} label={item.label} href={item.href} icon={item.icon} />
+                        <SidebarItem 
+                            key={item.href} 
+                            label={item.label} 
+                            href={item.href} 
+                            icon={item.icon} 
+                            auth={item.auth} 
+                            alert={item.alert} 
+                        />
                     ))}
                     {currentUser && (
                         <SidebarItem onClick={handleLogout} icon={BiLogOut} label="Logout"/>
