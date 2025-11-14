@@ -1,36 +1,465 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Twitter Clone 🐦
 
-## Getting Started
+一个基于 Next.js 16 构建的全栈 Twitter 克隆项目,实现了社交媒体的核心功能。
 
-First, run the development server:
+## 📋 目录
+
+- [技术栈](#-技术栈)
+- [功能特性](#-功能特性)
+- [项目结构](#-项目结构)
+- [快速开始](#-快速开始)
+- [环境变量配置](#-环境变量配置)
+- [部署](#-部署)
+- [核心文件说明](#-核心文件说明)
+- [TODO](#-todo)
+
+## 🛠️ 技术栈
+
+### 核心框架
+- **Next.js 16** - React 全栈框架
+- **TypeScript** - 类型安全
+- **React 18** - UI 库
+
+### 数据库 & 认证
+- **Prisma** - ORM 数据库工具
+- **NextAuth.js** - 身份认证
+- **MongoDB** / PostgreSQL - 数据库
+
+### UI 组件
+- **Tailwind CSS** - 样式框架
+- **Radix UI** - 无头组件库
+- **React Icons** - 图标库
+- **Sonner** - Toast 通知
+- **React Dropzone** - 文件上传
+
+### 数据获取
+- **SWR** - React Hooks 数据获取库
+- **Axios** - HTTP 客户端
+
+## ✨ 功能特性
+
+### 👤 用户功能
+- ✅ 用户注册/登录/登出
+- ✅ 个人资料编辑 (头像、封面、个人简介)
+- ✅ 用户关注/取消关注
+- ✅ 用户主页展示
+
+### 📝 帖子功能
+- ✅ 发布推文(支持图片上传)
+- ✅ 点赞/取消点赞推文
+- ✅ 评论推文
+- ✅ 推文详情页
+- ✅ 推文时间线展示
+
+### 🔔 通知系统
+- ✅ 关注通知
+- ✅ 点赞通知
+- ✅ 评论通知
+- ✅ 通知未读标记
+
+### 🎨 UI/UX
+- ✅ 响应式设计
+- ✅ 模态框交互
+- ✅ Toast 提示
+- ✅ 加载状态
+- ✅ 错误处理
+
+## 📁 项目结构
+
+```
+twitter-clone/
+├── 📱 app/                          # Next.js App Router
+│   ├── api/                        # API 路由
+│   │   ├── auth/[...nextauth]/    # NextAuth 认证端点
+│   │   │   └── route.ts           # 🔑 认证配置 (CredentialsProvider)
+│   │   ├── comments/              # 💬 评论 API
+│   │   │   └── route.ts           # 创建评论,触发通知
+│   │   ├── current/               # 👤 获取当前用户
+│   │   │   └── route.ts           # 返回会话用户信息
+│   │   ├── edit/                  # ✏️ 编辑用户资料
+│   │   │   └── route.ts           # 更新用户名/简介/头像/封面
+│   │   ├── follow/                # 🤝 关注/取消关注
+│   │   │   └── route.ts           # 处理关注逻辑,创建通知
+│   │   ├── like/                  # ❤️ 点赞/取消点赞
+│   │   │   └── route.ts           # 处理点赞逻辑,创建通知
+│   │   ├── notifications/         # 🔔 通知 API
+│   │   │   └── [userId]/
+│   │   │       └── route.ts       # 获取用户通知列表
+│   │   ├── posts/                 # 📝 推文 API
+│   │   │   ├── route.ts           # 创建推文,获取推文列表
+│   │   │   └── [postId]/
+│   │   │       └── route.ts       # 获取单条推文详情
+│   │   ├── register/              # 📋 用户注册
+│   │   │   └── route.ts           # 创建新用户 (bcrypt 加密)
+│   │   └── users/                 # 👥 用户信息
+│   │       ├── route.ts           # 获取用户列表
+│   │       └── [userId]/
+│   │           └── route.ts       # 获取指定用户信息
+│   ├── notifications/             # 🔔 通知页面
+│   │   └── page.tsx               # 显示通知列表
+│   ├── posts/[postId]/           # 📄 推文详情页
+│   │   └── page.tsx               # 推文详情 + 评论
+│   ├── users/[userid]/           # 👤 用户主页
+│   │   └── page.tsx               # 用户资料 + 推文列表
+│   ├── layout.tsx                 # 🏗️ 根布局 (侧边栏+内容+关注栏)
+│   ├── page.tsx                   # 🏠 首页 (推文流)
+│   └── globals.css                # 🎨 全局样式
+│
+├── 🎨 components/                   # React 组件
+│   ├── layout/                    # 布局组件
+│   │   ├── Sidebar.tsx           # 📍 侧边栏导航 (首页/通知/个人)
+│   │   ├── SidebarItem.tsx       # 🔘 侧边栏单项 (高亮/路由)
+│   │   ├── SidebarLogo.tsx       # 🐦 Twitter Logo
+│   │   ├── SidebarTwitterButton.tsx # ✍️ 发推按钮 (打开登录)
+│   │   └── FollowBar.tsx         # 👥 推荐关注栏 (用户列表)
+│   ├── modals/                    # 弹窗组件
+│   │   ├── LoginModal.tsx        # 🔐 登录弹窗 (邮箱/密码)
+│   │   ├── RegisterModal.tsx     # 📝 注册弹窗 (邮箱/密码/用户名)
+│   │   └── EditModal.tsx         # ✏️ 编辑资料弹窗 (上传图片)
+│   ├── posts/                     # 推文相关组件
+│   │   ├── PostFeed.tsx          # 📰 推文流 (无限加载)
+│   │   ├── PostItem.tsx          # 📄 单条推文卡片 (点赞/评论)
+│   │   ├── CommentFeed.tsx       # 💬 评论流
+│   │   └── CommendItem.tsx       # 💬 单条评论
+│   ├── users/                     # 用户相关组件
+│   │   ├── UserBio.tsx           # 📋 用户简介 (关注按钮/统计)
+│   │   └── UserHero.tsx          # 🖼️ 用户封面 (编辑按钮)
+│   ├── Avatar.tsx                 # 👤 头像组件 (点击跳转)
+│   ├── Button.tsx                 # 🔘 按钮组件 (多种样式)
+│   ├── Form.tsx                   # ✍️ 发推表单 (文本+图片)
+│   ├── Header.tsx                 # 📌 页面头部 (返回按钮+标题)
+│   ├── ImageUpload.tsx            # 📸 图片上传 (Cloudinary)
+│   ├── Input.tsx                  # 📝 输入框组件
+│   ├── Modal.tsx                  # 🪟 模态框基础组件
+│   └── NotificationsFeed.tsx      # 🔔 通知流
+│
+├── 🪝 hooks/                        # 自定义 Hooks
+│   ├── useCurrentUser.ts         # 👤 获取当前用户 (SWR)
+│   ├── useUser.ts                # 👤 获取指定用户 (SWR)
+│   ├── useUsers.ts               # 👥 获取用户列表 (SWR)
+│   ├── usePost.ts                # 📄 获取单条推文 (SWR)
+│   ├── usePosts.ts               # 📰 获取推文列表 (SWR)
+│   ├── useLike.ts                # ❤️ 点赞逻辑 (乐观更新)
+│   ├── useFollow.ts              # 🤝 关注逻辑 (乐观更新)
+│   ├── useNotifications.ts       # 🔔 通知逻辑 (SWR)
+│   ├── useLoginModal.ts          # 🔐 登录弹窗状态 (Zustand)
+│   ├── useRegisterModal.ts       # 📝 注册弹窗状态 (Zustand)
+│   └── useEditModal.ts           # ✏️ 编辑弹窗状态 (Zustand)
+│
+├── 🔧 lib/                          # 工具库
+│   ├── prismadb.ts               # 💾 Prisma 客户端单例
+│   ├── serverAuth.ts             # 🔑 服务端认证工具
+│   ├── fetcher.ts                # 🔄 SWR fetcher (Axios)
+│   └── utils.ts                  # 🛠️ 工具函数 (cn, clsx)
+│
+├── 🗄️ prisma/                      # Prisma 配置
+│   └── schema.prisma             # 📊 数据库模型定义
+│                                 # - User (用户)
+│                                 # - Post (推文)
+│                                 # - Comment (评论)
+│                                 # - Notification (通知)
+│
+├── 📝 配置文件
+│   ├── .env                      # 🔐 环境变量
+│   ├── next.config.ts            # ⚙️ Next.js 配置
+│   ├── tailwind.config.ts        # 🎨 Tailwind 配置
+│   ├── tsconfig.json             # 📘 TypeScript 配置
+│   ├── prisma.config.ts          # 💾 Prisma 配置
+│   ├── components.json           # 🎨 Shadcn UI 配置
+│   └── package.json              # 📦 依赖管理
+│
+└── 🖼️ public/                      # 静态资源
+    └── images/
+        └── placeholder.png       # 占位图
+```
+
+## 🚀 快速开始
+
+### 1️⃣ 克隆项目
+
+```bash
+git clone <repository-url>
+cd twitter-clone
+```
+
+### 2️⃣ 安装依赖
+
+```bash
+npm install
+# 或
+yarn install
+# 或
+pnpm install
+```
+
+### 3️⃣ 配置环境变量
+
+创建 `.env` 文件并配置以下变量:
+
+```env
+# 数据库
+DATABASE_URL="your_database_url"
+
+# NextAuth
+NEXTAUTH_SECRET="your_nextauth_secret"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Cloudinary (图片上传,可选)
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
+```
+
+### 4️⃣ 初始化数据库
+
+```bash
+# 生成 Prisma Client
+npx prisma generate
+
+# 同步数据库结构
+npx prisma db push
+
+# (可选) 打开 Prisma Studio 查看数据
+npx prisma studio
+```
+
+### 5️⃣ 启动开发服务器
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开 [http://localhost:3000](http://localhost:3000) 查看应用。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 环境变量配置
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 变量名 | 说明 | 必需 | 示例 |
+|--------|------|------|------|
+| `DATABASE_URL` | 数据库连接 URL | ✅ | `mongodb+srv://...` 或 `postgresql://...` |
+| `NEXTAUTH_SECRET` | NextAuth 密钥 | ✅ | 使用 `openssl rand -base64 32` 生成 |
+| `NEXTAUTH_URL` | 应用 URL | ✅ | `http://localhost:3000` |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary 云名称 | ❌ | 用于图片上传 |
 
-## Learn More
+## 📦 部署
 
-To learn more about Next.js, take a look at the following resources:
+### Vercel (推荐) ⚡
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. 推送代码到 GitHub
+2. 在 [Vercel](https://vercel.com) 导入项目
+3. 配置环境变量
+4. 部署 🚀
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/twitter-clone)
 
-## Deploy on Vercel
+### 其他平台 🐳
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# 构建项目
+npm run build
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 启动生产服务器
+npm start
+```
+
+### Docker 部署 🐋
+
+```bash
+# 构建镜像
+docker build -t twitter-clone .
+
+# 运行容器
+docker run -p 3000:3000 twitter-clone
+```
+
+## 🎯 核心文件说明
+
+### 🔑 认证相关
+- **`app/api/auth/[...nextauth]/route.ts`**
+  - NextAuth 配置
+  - CredentialsProvider 邮箱密码登录
+  - bcrypt 密码验证
+  
+- **`lib/serverAuth.ts`**
+  - 服务端认证工具
+  - 验证用户会话
+  - 返回当前用户
+
+- **`hooks/useCurrentUser.ts`**
+  - 客户端获取当前用户
+  - 使用 SWR 缓存
+
+### 💾 数据库
+
+- **`prisma/schema.prisma`**
+  - 数据库模型定义
+  - User: 用户信息、关注关系、点赞列表
+  - Post: 推文内容、作者、点赞数、评论
+  - Comment: 评论内容、作者、所属推文
+  - Notification: 通知类型、接收者、发送者
+
+- **`lib/prismadb.ts`**
+  - Prisma 客户端单例
+  - 防止开发环境重复实例化
+
+### 🎣 核心 Hooks
+
+- **`hooks/useLike.ts`** ⭐
+  - 点赞功能核心逻辑
+  - 使用 SWR 乐观更新
+  - 后端返回最新数据覆盖缓存
+  - 未登录时打开登录弹窗
+
+- **`hooks/useFollow.ts`**
+  - 关注功能逻辑
+  - 乐观更新关注状态
+  - 触发通知创建
+
+- **`hooks/usePost.ts`** & **`hooks/usePosts.ts`**
+  - 推文数据获取
+  - SWR 自动缓存和重新验证
+  - 支持按用户 ID 筛选
+
+### 🎨 UI 组件
+
+- **`components/Form.tsx`**
+  - 发推表单
+  - 支持文本和图片
+  - 字符计数
+
+- **`components/posts/PostItem.tsx`**
+  - 推文卡片
+  - 显示作者、内容、时间
+  - 点赞、评论交互
+
+- **`components/layout/Sidebar.tsx`**
+  - 侧边栏导航
+  - 响应式设计
+  - 高亮当前页面
+
+### 📡 API 路由
+
+- **`app/api/like/route.ts`**
+  - POST: 点赞推文
+  - DELETE: 取消点赞
+  - 创建点赞通知
+
+- **`app/api/follow/route.ts`**
+  - POST: 关注用户
+  - DELETE: 取消关注
+  - 创建关注通知
+
+- **`app/api/posts/route.ts`**
+  - GET: 获取推文列表 (支持 userId 参数)
+  - POST: 创建新推文
+
+## 🎓 技术亮点
+
+### 1. SWR 数据获取 🔄
+```typescript
+const { data, mutate } = useSWR('/api/posts', fetcher);
+```
+- 自动缓存和重新验证
+- 乐观更新 UI
+- 请求去重
+
+### 2. NextAuth 认证 🔐
+```typescript
+const session = await getServerSession(authOptions);
+```
+- 服务端会话验证
+- Credentials 提供商
+- 类型安全
+
+### 3. Prisma ORM 💾
+```typescript
+await prisma.post.create({
+  data: { body, userId, image }
+});
+```
+- 类型安全的数据库操作
+- 自动迁移
+- 关系查询
+
+### 4. Zustand 状态管理 🏪
+```typescript
+const loginModal = useLoginModal();
+loginModal.onOpen();
+```
+- 轻量级状态管理
+- 简洁的 API
+- TypeScript 支持
+
+## 📝 TODO
+
+### 高优先级 🔴
+- [ ] 🔄 添加推文转发功能
+- [ ] 💬 实现私信系统
+- [ ] 🔍 添加搜索功能 (用户/推文)
+- [ ] 📱 优化移动端体验
+- [ ] 🔖 添加推文书签功能
+- [ ] 🖼️ 图片预览和放大功能
+
+### 中优先级 🟡
+- [ ] 🎥 支持多媒体推文(视频、GIF)
+- [ ] #️⃣ 添加话题标签 (#hashtag)
+- [ ] @ 实现提及功能 (@mention)
+- [ ] 📄 添加推文草稿
+- [ ] 🧵 支持推文线程 (Thread)
+- [ ] 📊 推文投票功能
+
+### 低优先级 🟢
+- [ ] 🌙 深色模式完善
+- [ ] 📈 添加推文统计分析
+- [ ] 📝 实现列表功能
+- [ ] 🗄️ 添加推文归档
+- [ ] 🌐 支持多语言 (i18n)
+- [ ] ✅ 用户认证徽章
+
+### 技术债务 ⚙️
+- [ ] 🧪 添加单元测试 (Jest)
+- [ ] 🔍 优化 SEO (metadata)
+- [ ] 🎭 添加 E2E 测试 (Playwright)
+- [ ] ⚡ 性能优化 (图片懒加载、代码分割)
+- [ ] 🚨 添加错误边界
+- [ ] 📊 添加性能监控
+- [ ] 🔒 增强安全性 (Rate limiting, CSRF)
+
+## 🐛 已知问题
+
+- [ ] 移动端侧边栏需要优化
+- [ ] 图片上传大小限制需要前端验证
+- [ ] 长推文需要"展开更多"功能
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request!
+
+### 开发流程
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+## 📄 License
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
+
+## 👨‍💻 作者
+
+**Your Name**
+
+- GitHub: [@yourusername](https://github.com/yourusername)
+- Twitter: [@yourhandle](https://twitter.com/yourhandle)
+
+## 🙏 致谢
+
+- [Next.js](https://nextjs.org/) - The React Framework
+- [Prisma](https://www.prisma.io/) - Next-generation ORM
+- [NextAuth.js](https://next-auth.js.org/) - Authentication for Next.js
+- [Tailwind CSS](https://tailwindcss.com/) - CSS Framework
+- [Vercel](https://vercel.com/) - Deployment Platform
+
+---
+
+**Made with ❤️ using Next.js**
+
+⭐ 如果这个项目对你有帮助，请给它一个星标！
