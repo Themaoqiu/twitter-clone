@@ -11,7 +11,6 @@
 - [环境变量配置](#-环境变量配置)
 - [部署](#-部署)
 - [核心文件说明](#-核心文件说明)
-- [TODO](#-todo)
 
 ## 🛠️ 技术栈
 
@@ -186,10 +185,6 @@ cd twitter-clone
 
 ```bash
 npm install
-# 或
-yarn install
-# 或
-pnpm install
 ```
 
 ### 3️⃣ 配置环境变量
@@ -203,9 +198,6 @@ DATABASE_URL="your_database_url"
 # NextAuth
 NEXTAUTH_SECRET="your_nextauth_secret"
 NEXTAUTH_URL="http://localhost:3000"
-
-# Cloudinary (图片上传,可选)
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
 ```
 
 ### 4️⃣ 初始化数据库
@@ -240,7 +232,7 @@ npm run dev
 
 ## 📦 部署
 
-### Vercel (推荐) ⚡
+### Vercel ⚡
 
 1. 推送代码到 GitHub
 2. 在 [Vercel](https://vercel.com) 导入项目
@@ -248,26 +240,6 @@ npm run dev
 4. 部署 🚀
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/twitter-clone)
-
-### 其他平台 🐳
-
-```bash
-# 构建项目
-npm run build
-
-# 启动生产服务器
-npm start
-```
-
-### Docker 部署 🐋
-
-```bash
-# 构建镜像
-docker build -t twitter-clone .
-
-# 运行容器
-docker run -p 3000:3000 twitter-clone
-```
 
 ## 🎯 核心文件说明
 
@@ -350,88 +322,6 @@ docker run -p 3000:3000 twitter-clone
   - GET: 获取推文列表 (支持 userId 参数)
   - POST: 创建新推文
 
-## 🎓 技术亮点
-
-### 1. SWR 数据获取 🔄
-```typescript
-const { data, mutate } = useSWR('/api/posts', fetcher);
-```
-- 自动缓存和重新验证
-- 乐观更新 UI
-- 请求去重
-
-### 2. NextAuth 认证 🔐
-```typescript
-const session = await getServerSession(authOptions);
-```
-- 服务端会话验证
-- Credentials 提供商
-- 类型安全
-
-### 3. Prisma ORM 💾
-```typescript
-await prisma.post.create({
-  data: { body, userId, image }
-});
-```
-- 类型安全的数据库操作
-- 自动迁移
-- 关系查询
-
-### 4. Zustand 状态管理 🏪
-```typescript
-const loginModal = useLoginModal();
-loginModal.onOpen();
-```
-- 轻量级状态管理
-- 简洁的 API
-- TypeScript 支持
-
-## 📝 TODO
-
-### 高优先级 🔴
-- [ ] 🔄 添加推文转发功能
-- [ ] 💬 实现私信系统
-- [ ] 🔍 添加搜索功能 (用户/推文)
-- [ ] 📱 优化移动端体验
-- [ ] 🔖 添加推文书签功能
-- [ ] 🖼️ 图片预览和放大功能
-
-### 中优先级 🟡
-- [ ] 🎥 支持多媒体推文(视频、GIF)
-- [ ] #️⃣ 添加话题标签 (#hashtag)
-- [ ] @ 实现提及功能 (@mention)
-- [ ] 📄 添加推文草稿
-- [ ] 🧵 支持推文线程 (Thread)
-- [ ] 📊 推文投票功能
-
-### 低优先级 🟢
-- [ ] 🌙 深色模式完善
-- [ ] 📈 添加推文统计分析
-- [ ] 📝 实现列表功能
-- [ ] 🗄️ 添加推文归档
-- [ ] 🌐 支持多语言 (i18n)
-- [ ] ✅ 用户认证徽章
-
-### 技术债务 ⚙️
-- [ ] 🧪 添加单元测试 (Jest)
-- [ ] 🔍 优化 SEO (metadata)
-- [ ] 🎭 添加 E2E 测试 (Playwright)
-- [ ] ⚡ 性能优化 (图片懒加载、代码分割)
-- [ ] 🚨 添加错误边界
-- [ ] 📊 添加性能监控
-- [ ] 🔒 增强安全性 (Rate limiting, CSRF)
-
-## 🐛 已知问题
-
-- [ ] 移动端侧边栏需要优化
-- [ ] 图片上传大小限制需要前端验证
-- [ ] 长推文需要"展开更多"功能
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request!
-
 ### 开发流程
 1. Fork 本仓库
 2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
@@ -439,27 +329,6 @@ loginModal.onOpen();
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 开启 Pull Request
 
-## 📄 License
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 👨‍💻 作者
-
-**Your Name**
-
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Twitter: [@yourhandle](https://twitter.com/yourhandle)
-
-## 🙏 致谢
-
-- [Next.js](https://nextjs.org/) - The React Framework
-- [Prisma](https://www.prisma.io/) - Next-generation ORM
-- [NextAuth.js](https://next-auth.js.org/) - Authentication for Next.js
-- [Tailwind CSS](https://tailwindcss.com/) - CSS Framework
-- [Vercel](https://vercel.com/) - Deployment Platform
-
----
 
 **Made with ❤️ using Next.js**
 
-⭐ 如果这个项目对你有帮助，请给它一个星标！
